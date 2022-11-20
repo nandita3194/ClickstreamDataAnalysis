@@ -25,6 +25,7 @@ services:
     depends_on:
       - 'zookeeper'
  
+ # Tracker
  divolte:
     build: .
     container_name: divolte
@@ -39,7 +40,7 @@ services:
       - '8290:8290'
     depends_on:
       - 'kafka'      
- 
+ # Database
  elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
     container_name: elasticsearch
@@ -48,10 +49,10 @@ services:
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - discovery.type=single-node
-      - cluster.name=RealTimeData
+      - cluster.name=Clickstreamdata
       - xpack.security.enabled=true
       - xpack.security.authc.api_key.enabled=true
-      - ELASTIC_PASSWORD=changeme
+      - ELASTIC_PASSWORD=nandita
     ulimits:
       memlock:
         soft: -1
@@ -59,10 +60,27 @@ services:
     ports:
       - '9200:9200'
     volumes:
-      - ./realtime_data:/usr/share/elasticsearch/data
-       
+      - ./database_elasticsearch:/usr/share/elasticsearch/data
+ 
+ # Visulisation
+ kibana:
+    image: docker.elastic.co/kibana/kibana:7.16.2
+    container_name: kibana
+    environment:
+      SERVER_NAME: RealTimeData
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD: nandita
+      LOGGING_QUIET: "true"
+    restart: always  
+    ports:
+      - '5601:5601'
+    depends_on:
+      - elasticsearch   
+    links:
+      - elasticsearch        
 
 volumes:
   kafka_data: {}
-  realtime_data:
+  es_data:
     driver: local
