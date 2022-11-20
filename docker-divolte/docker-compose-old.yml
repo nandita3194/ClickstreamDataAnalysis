@@ -1,0 +1,53 @@
+version: "3.3"
+services:
+
+  # Kafka/Zookeeper container
+  divolte-kafka:
+    image: krisgeus/docker-kafka
+    environment:
+      ADVERTISED_HOST: divolte-kafka
+      LOG_RETENTION_HOURS: 1
+      AUTO_CREATE_TOPICS: "false"
+      KAFKA_CREATE_TOPICS: divolte:4:1
+      ADVERTISED_LISTENERS: PLAINTEXT://divolte-kafka:9092,INTERNAL://localhost:9093
+      LISTENERS: PLAINTEXT://0.0.0.0:9092,INTERNAL://0.0.0.0:9093
+      SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT
+      INTER_BROKER: INTERNAL
+
+  # Divolte container
+  docker-divolte:
+    build: .
+    environment:
+      DIVOLTE_KAFKA_BROKER_LIST: divolte-kafka:9092
+    ports:
+      - 8290:8290
+    depends_on:
+      - divolte-kafka
+   
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch01
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+      - cluster.name=RealTimeData
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
+      - ELASTIC_PASSWORD=changeme
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1  
+    ports:
+      - '9200:9200'
+    volumes:
+      - ./database_data:/usr/share/elasticsearch/data  
+ 
+ volumes:
+
+  database_data:
+    driver: local     
+      
+  
