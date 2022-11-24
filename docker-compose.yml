@@ -36,7 +36,7 @@ services:
       DIVOLTE_KAFKA_TOPIC: "divolte"
       DIVOLTE_KAFKA_CLIENT_ID: "divolte.collector"
       DIVOLTE_KAFKA_BROKER_LIST: "kafka:9093"
-      DIVOLTE_COOKIE_DOMAIN: ""
+      DIVOLTE_COOKIE_DOMAIN: "beautysecrets.ml"
       DIVOLTE_JAVASCRIPT_NAME: "divolte.js"
       DIVOLTE_CONF_DIR: /opt/divolte/divolte-collector/conf
     ports:
